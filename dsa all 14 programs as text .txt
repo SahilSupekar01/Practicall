@@ -1,0 +1,652 @@
+ Here are all 14 programs as text: C++ for A1–A6 and B1, Python for A7, A8 and B2–B6. Copy each block into its own file. For the Python ones, keep the indentation exactly as shown.
+
+## A1 (C++)
+```cpp
+// A1: dynamic student list (realloc) + Linear & Binary Search by ID
+#include <iostream>
+#include <iomanip>
+#include <cstdlib>
+using namespace std;
+struct S { int id; char name[50]; float cgpa; };
+S *a = NULL; int n = 0;
+int byId(const void *x, const void *y) { return ((S *)x)->id - ((S *)y)->id; }
+void show(int i) { cout << a[i].id << " " << a[i].name << " " << fixed << setprecision(2) << a[i].cgpa << "\n"; }
+
+int main() {
+    int c, i, k, lo, hi, mid; S *t;
+    for (;;) {
+        cout << "\n1.Add 2.Linear search 3.Binary search 4.Show 0.Exit: ";
+        if (!(cin >> c) || c == 0) break;
+        if (c == 1) {
+            t = (S *)realloc(a, (n + 1) * sizeof(S));
+            if (!t) return 1;
+            a = t;
+            cout << "ID Name(one word) CGPA: ";
+            if (!(cin >> a[n].id >> setw(50) >> a[n].name >> a[n].cgpa)) break;
+            n++;
+        } else if (c == 2 || c == 3) {
+            cout << "ID to find: "; cin >> k;
+            if (c == 2)
+                for (i = 0; i < n && a[i].id != k; i++);
+            else {                                   // binary search needs sorted data
+                if (n) qsort(a, n, sizeof(S), byId);
+                for (i = -1, lo = 0, hi = n - 1; lo <= hi; ) {
+                    mid = (lo + hi) / 2;
+                    if (a[mid].id == k) { i = mid; break; }
+                    if (a[mid].id < k) lo = mid + 1; else hi = mid - 1;
+                }
+                if (i < 0) i = n;
+            }
+            if (i < n) { cout << "Found: "; show(i); }
+            else cout << "Not found\n";
+        } else if (c == 4)
+            for (i = 0; i < n; i++) show(i);
+    }
+    free(a);
+    return 0;
+}
+```
+
+## A2 (C++): Bubble Sort
+```cpp
+// A2: dynamic student list (realloc) + Bubble Sort by Name / CGPA (asc, desc)
+#include <iostream>
+#include <iomanip>
+#include <cstdlib>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+struct S { int id; char name[50]; float cgpa; };
+typedef int (*Cmp)(S *, S *);          // returns >0 when first must come after second
+S *a = NULL; int n = 0;
+int byName(S *x, S *y) { return strcmp(x->name, y->name); }
+int cgpaUp(S *x, S *y) { return x->cgpa > y->cgpa; }
+int cgpaDown(S *x, S *y) { return x->cgpa < y->cgpa; }
+
+void sort(Cmp f) {
+    for (int i = 0; i < n - 1; i++)
+        for (int j = 0; j < n - i - 1; j++)
+            if (f(&a[j], &a[j + 1]) > 0) swap(a[j], a[j + 1]);
+}
+
+int main() {
+    int c, i; S *t;
+    for (;;) {
+        cout << "\n1.Add 2.Show 3.Sort by name 4.CGPA ascending 5.CGPA descending 0.Exit: ";
+        if (!(cin >> c) || c == 0) break;
+        if (c == 1) {
+            t = (S *)realloc(a, (n + 1) * sizeof(S));
+            if (!t) return 1;
+            a = t;
+            cout << "ID Name(one word) CGPA: ";
+            if (!(cin >> a[n].id >> setw(50) >> a[n].name >> a[n].cgpa)) break;
+            n++;
+        } else if (c >= 2 && c <= 5) {
+            if (c > 2) sort(c == 3 ? byName : c == 4 ? cgpaUp : cgpaDown);
+            for (i = 0; i < n; i++)
+                cout << a[i].id << " " << a[i].name << " " << fixed << setprecision(2) << a[i].cgpa << "\n";
+        }
+    }
+    free(a);
+    return 0;
+}
+```
+
+## A3 (C++): Selection Sort
+```cpp
+// A3: dynamic student list (realloc) + Selection Sort by Name / CGPA (asc, desc)
+#include <iostream>
+#include <iomanip>
+#include <cstdlib>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+struct S { int id; char name[50]; float cgpa; };
+typedef int (*Cmp)(S *, S *);          // returns >0 when first must come after second
+S *a = NULL; int n = 0;
+int byName(S *x, S *y) { return strcmp(x->name, y->name); }
+int cgpaUp(S *x, S *y) { return x->cgpa > y->cgpa; }
+int cgpaDown(S *x, S *y) { return x->cgpa < y->cgpa; }
+
+void sort(Cmp f) {
+    for (int i = 0; i < n - 1; i++) {
+        int m = i;
+        for (int j = i + 1; j < n; j++)
+            if (f(&a[m], &a[j]) > 0) m = j;
+        swap(a[i], a[m]);
+    }
+}
+
+int main() {
+    int c, i; S *t;
+    for (;;) {
+        cout << "\n1.Add 2.Show 3.Sort by name 4.CGPA ascending 5.CGPA descending 0.Exit: ";
+        if (!(cin >> c) || c == 0) break;
+        if (c == 1) {
+            t = (S *)realloc(a, (n + 1) * sizeof(S));
+            if (!t) return 1;
+            a = t;
+            cout << "ID Name(one word) CGPA: ";
+            if (!(cin >> a[n].id >> setw(50) >> a[n].name >> a[n].cgpa)) break;
+            n++;
+        } else if (c >= 2 && c <= 5) {
+            if (c > 2) sort(c == 3 ? byName : c == 4 ? cgpaUp : cgpaDown);
+            for (i = 0; i < n; i++)
+                cout << a[i].id << " " << a[i].name << " " << fixed << setprecision(2) << a[i].cgpa << "\n";
+        }
+    }
+    free(a);
+    return 0;
+}
+```
+
+## A4 (C++): Insertion Sort
+```cpp
+// A4: dynamic student list (realloc) + Insertion Sort by Name / CGPA (asc, desc)
+#include <iostream>
+#include <iomanip>
+#include <cstdlib>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+struct S { int id; char name[50]; float cgpa; };
+typedef int (*Cmp)(S *, S *);          // returns >0 when first must come after second
+S *a = NULL; int n = 0;
+int byName(S *x, S *y) { return strcmp(x->name, y->name); }
+int cgpaUp(S *x, S *y) { return x->cgpa > y->cgpa; }
+int cgpaDown(S *x, S *y) { return x->cgpa < y->cgpa; }
+
+void sort(Cmp f) {
+    for (int i = 1; i < n; i++) {
+        S k = a[i]; int j = i - 1;
+        for (; j >= 0 && f(&a[j], &k) > 0; j--) a[j + 1] = a[j];
+        a[j + 1] = k;
+    }
+}
+
+int main() {
+    int c, i; S *t;
+    for (;;) {
+        cout << "\n1.Add 2.Show 3.Sort by name 4.CGPA ascending 5.CGPA descending 0.Exit: ";
+        if (!(cin >> c) || c == 0) break;
+        if (c == 1) {
+            t = (S *)realloc(a, (n + 1) * sizeof(S));
+            if (!t) return 1;
+            a = t;
+            cout << "ID Name(one word) CGPA: ";
+            if (!(cin >> a[n].id >> setw(50) >> a[n].name >> a[n].cgpa)) break;
+            n++;
+        } else if (c >= 2 && c <= 5) {
+            if (c > 2) sort(c == 3 ? byName : c == 4 ? cgpaUp : cgpaDown);
+            for (i = 0; i < n; i++)
+                cout << a[i].id << " " << a[i].name << " " << fixed << setprecision(2) << a[i].cgpa << "\n";
+        }
+    }
+    free(a);
+    return 0;
+}
+```
+
+## A5 (C++): Infix to Postfix
+```cpp
+// A5: Infix to Postfix using stack ADT (singly linked list)
+#include <iostream>
+#include <string>
+#include <cctype>
+#include <algorithm>
+using namespace std;
+
+// Stack ADT using singly linked list
+class Stack {
+    struct N { char c; N *next; };
+    N *top;
+public:
+    Stack() : top(NULL) {}
+    void push(char c) { N *t = new N; t->c = c; t->next = top; top = t; }
+    char pop() { N *t = top; char c = t->c; top = t->next; delete t; return c; }
+    char peek() { return top->c; }
+    bool empty() { return top == NULL; }
+};
+int pr(char c) { return c == '^' ? 3 : c == '*' || c == '/' ? 2 : c == '+' || c == '-' ? 1 : 0; }
+
+// rev=0: normal (^ right-assoc); rev=1: used on reversed input for prefix (^ left-assoc)
+string conv(string in, int rev) {
+    Stack s; string out;
+    for (size_t i = 0; i < in.size(); i++) {
+        char c = in[i];
+        if (isalnum(c)) out += c;
+        else if (c == '(') s.push(c);
+        else if (c == ')') {
+            while (!s.empty() && s.peek() != '(') out += s.pop();
+            if (s.empty()) return "Invalid expression";      // no matching '('
+            s.pop();
+        }
+        else if (pr(c)) {
+            while (!s.empty() && s.peek() != '(' && (pr(s.peek()) > pr(c) || (pr(s.peek()) == pr(c) && (c == '^') == rev)))
+                out += s.pop();
+            s.push(c);
+        }
+    }
+    while (!s.empty()) {
+        if (s.peek() == '(') return "Invalid expression";    // no matching ')'
+        out += s.pop();
+    }
+    return out;
+}
+
+int main() {
+    string in;
+    cout << "Infix: "; cin >> in;
+    cout << "Postfix: " << conv(in, 0) << "\n";
+    return 0;
+}
+```
+
+## A6 (C++): Infix to Prefix
+```cpp
+// A6: Infix to Prefix using stack ADT (singly linked list)
+#include <iostream>
+#include <string>
+#include <cctype>
+#include <algorithm>
+using namespace std;
+
+// Stack ADT using singly linked list
+class Stack {
+    struct N { char c; N *next; };
+    N *top;
+public:
+    Stack() : top(NULL) {}
+    void push(char c) { N *t = new N; t->c = c; t->next = top; top = t; }
+    char pop() { N *t = top; char c = t->c; top = t->next; delete t; return c; }
+    char peek() { return top->c; }
+    bool empty() { return top == NULL; }
+};
+int pr(char c) { return c == '^' ? 3 : c == '*' || c == '/' ? 2 : c == '+' || c == '-' ? 1 : 0; }
+
+// rev=0: normal (^ right-assoc); rev=1: used on reversed input for prefix (^ left-assoc)
+string conv(string in, int rev) {
+    Stack s; string out;
+    for (size_t i = 0; i < in.size(); i++) {
+        char c = in[i];
+        if (isalnum(c)) out += c;
+        else if (c == '(') s.push(c);
+        else if (c == ')') {
+            while (!s.empty() && s.peek() != '(') out += s.pop();
+            if (s.empty()) return "Invalid expression";      // no matching '('
+            s.pop();
+        }
+        else if (pr(c)) {
+            while (!s.empty() && s.peek() != '(' && (pr(s.peek()) > pr(c) || (pr(s.peek()) == pr(c) && (c == '^') == rev)))
+                out += s.pop();
+            s.push(c);
+        }
+    }
+    while (!s.empty()) {
+        if (s.peek() == '(') return "Invalid expression";    // no matching ')'
+        out += s.pop();
+    }
+    return out;
+}
+
+int main() {
+    string in;
+    cout << "Infix: "; cin >> in;
+    reverse(in.begin(), in.end());             // reverse, swap brackets, make postfix, reverse
+    for (size_t i = 0; i < in.size(); i++)
+        in[i] = in[i] == '(' ? ')' : in[i] == ')' ? '(' : in[i];
+    string out = conv(in, 1);
+    if (out != "Invalid expression") reverse(out.begin(), out.end());
+    cout << "Prefix: " << out << "\n";
+    return 0;
+}
+```
+
+## A7 (Python): Kruskal's
+```python
+# A7: campus graph (adjacency matrix) + MST by Kruskal's algorithm
+
+def find(parent, x):
+    while parent[x] != x:
+        parent[x] = parent[parent[x]]          # path compression
+        x = parent[x]
+    return x
+
+def main():
+    V = int(input("Departments: "))
+    if V < 1:
+        print("Invalid number of departments"); return
+    names = [input(f"Name {i}: ") for i in range(V)]
+    E = int(input("Paths: "))
+    g = [[0] * V for _ in range(V)]
+    print("Enter u v distance for each path:")
+    for _ in range(E):
+        u, v, w = map(int, input().split())
+        if not (0 <= u < V and 0 <= v < V):
+            print("Invalid node index"); return
+        g[u][v] = g[v][u] = w
+
+    edges = sorted((g[i][j], i, j) for i in range(V) for j in range(i + 1, V) if g[i][j])
+    parent = list(range(V))
+    total = cnt = 0
+    print("MST edges (Kruskal):")
+    for w, u, v in edges:                       # shortest edge first
+        a, b = find(parent, u), find(parent, v)
+        if a != b:
+            parent[a] = b
+            total += w; cnt += 1
+            print(names[u], "-", names[v], ":", w)
+    if cnt < V - 1:
+        print("Graph not connected")
+    print("Total distance =", total)
+
+try:
+    main()
+except (EOFError, ValueError):
+    print("\nInvalid input")
+```
+
+## A8 (Python): Prim's
+```python
+# A8: campus graph (adjacency matrix) + MST by Prim's algorithm
+
+def main():
+    V = int(input("Departments: "))
+    if V < 1:
+        print("Invalid number of departments"); return
+    names = [input(f"Name {i}: ") for i in range(V)]
+    E = int(input("Paths: "))
+    g = [[0] * V for _ in range(V)]
+    print("Enter u v distance for each path:")
+    for _ in range(E):
+        u, v, w = map(int, input().split())
+        if not (0 <= u < V and 0 <= v < V):
+            print("Invalid node index"); return
+        g[u][v] = g[v][u] = w
+
+    print("Adjacency matrix:")
+    for row in g:
+        print("".join(f"{x:4d}" for x in row))
+
+    INF = float("inf")
+    key, par, done = [INF] * V, [-1] * V, [False] * V
+    key[0] = 0
+    total = 0
+    print("MST edges (Prim):")
+    for _ in range(V):
+        u = min((i for i in range(V) if not done[i]), key=lambda i: key[i])   # nearest vertex
+        if key[u] == INF:
+            print("Graph not connected"); break
+        done[u] = True
+        if par[u] >= 0:
+            total += key[u]
+            print(names[par[u]], "-", names[u], ":", key[u])
+        for v in range(V):
+            if g[u][v] and not done[v] and g[u][v] < key[v]:
+                key[v], par[v] = g[u][v], u
+    print("Total distance =", total)
+
+try:
+    main()
+except (EOFError, ValueError):
+    print("\nInvalid input")
+```
+
+## B1 (C++): Circular Queue
+```cpp
+// B1: Circular Queue using array
+#include <iostream>
+using namespace std;
+const int N = 5;
+int q[N], f = -1, r = -1;
+
+int main() {
+    int c, x;
+    for (;;) {
+        cout << "\n1.Enqueue 2.Dequeue 3.Display 0.Exit: ";
+        if (!(cin >> c) || c == 0) break;
+        if (c == 1) {
+            cout << "Value: "; cin >> x;
+            if ((r + 1) % N == f) cout << "Queue full\n";
+            else { if (f < 0) f = 0; r = (r + 1) % N; q[r] = x; }
+        } else if (c == 2) {
+            if (f < 0) cout << "Queue empty\n";
+            else {
+                cout << "Deleted " << q[f] << "\n";
+                if (f == r) f = r = -1; else f = (f + 1) % N;
+            }
+        } else if (c == 3) {
+            if (f < 0) cout << "Queue empty\n";
+            else for (int i = f; ; i = (i + 1) % N) { cout << q[i] << " "; if (i == r) break; }
+        }
+    }
+    return 0;
+}
+```
+
+## B2 (Python): Binary Search Tree
+```python
+# B2: Binary Search Tree with all operations
+import sys
+sys.setrecursionlimit(20000)                    # allow very deep (skewed) trees
+
+class Node:
+    def __init__(self, d):
+        self.d, self.l, self.r = d, None, None
+
+def insert(t, d):                               # duplicates rejected
+    if not t: return Node(d)
+    if d < t.d: t.l = insert(t.l, d)
+    elif d > t.d: t.r = insert(t.r, d)
+    else: print("Duplicate!")
+    return t
+
+def delete(t, d):
+    if not t:
+        print("Not found"); return t
+    if d < t.d: t.l = delete(t.l, d)
+    elif d > t.d: t.r = delete(t.r, d)
+    elif not t.l or not t.r: return t.l or t.r
+    else:
+        s = t.r
+        while s.l: s = s.l                       # inorder successor
+        t.d = s.d
+        t.r = delete(t.r, s.d)
+    return t
+
+def search(t, d):
+    while t and t.d != d:
+        t = t.l if d < t.d else t.r
+    return t is not None
+
+def inorder(t):
+    if t: inorder(t.l); print(t.d, end=" "); inorder(t.r)
+def preorder(t):
+    if t: print(t.d, end=" "); preorder(t.l); preorder(t.r)
+def postorder(t):
+    if t: postorder(t.l); postorder(t.r); print(t.d, end=" ")
+
+def depth(t): return 0 if not t else 1 + max(depth(t.l), depth(t.r))
+
+def mirror(t):
+    if not t: return None
+    m = Node(t.d); m.l = mirror(t.r); m.r = mirror(t.l)
+    return m
+
+def copy(t):
+    if not t: return None
+    c = Node(t.d); c.l = copy(t.l); c.r = copy(t.r)
+    return c
+
+def parents(t):
+    if not t or (not t.l and not t.r): return
+    line = f"{t.d}:"
+    if t.l: line += f" left={t.l.d}"
+    if t.r: line += f" right={t.r.d}"
+    print(line)
+    parents(t.l); parents(t.r)
+
+def leaves(t):
+    if t:
+        if not t.l and not t.r: print(t.d, end=" ")
+        leaves(t.l); leaves(t.r)
+
+def level(t, k):
+    if t:
+        if k == 1: print(t.d, end=" ")
+        else: level(t.l, k - 1); level(t.r, k - 1)
+
+def main():
+    root = None
+    while True:
+        c = int(input("\n1.Insert 2.Delete 3.Search 4.Traversals 5.Depth 6.Mirror 7.Copy\n"
+                      "8.Parents 9.Leaves 10.Level-wise 0.Exit: "))
+        if c == 0: break
+        if c in (1, 2, 3):
+            x = int(input("Value: "))
+            if c == 1: root = insert(root, x)
+            elif c == 2: root = delete(root, x)
+            else: print("Found" if search(root, x) else "Not found")
+        elif c == 4:
+            inorder(root); print("(in)"); preorder(root); print("(pre)"); postorder(root); print("(post)")
+        elif c == 5: print("Depth =", depth(root))
+        elif c == 6: inorder(mirror(root)); print("(inorder of result)")
+        elif c == 7: inorder(copy(root)); print("(inorder of result)")
+        elif c == 8: parents(root)
+        elif c == 9: leaves(root); print()
+        elif c == 10:
+            for i in range(1, depth(root) + 1):
+                print(f"Level {i}: ", end=""); level(root, i); print()
+
+try:
+    main()
+except (EOFError, ValueError):
+    print("\nInvalid input")
+except RecursionError:
+    print("\nTree too deep")
+```
+
+## B3 (Python): Heap Sort
+```python
+# B3: Heap Sort - max-heap, in place: O(n log n) time, O(1) extra space
+
+def heapify(a, n, i):                           # sift a[i] down
+    while True:
+        m, l, r = i, 2 * i + 1, 2 * i + 2
+        if l < n and a[l] > a[m]: m = l
+        if r < n and a[r] > a[m]: m = r
+        if m == i: return
+        a[i], a[m] = a[m], a[i]
+        i = m
+
+def main():
+    n = int(input("n: "))
+    if n < 1:
+        print("n must be at least 1"); return
+    print("Elements: ", end="")
+    a = []
+    while len(a) < n:
+        a += map(int, input().split())
+    a = a[:n]
+    for i in range(n // 2 - 1, -1, -1):         # build max-heap
+        heapify(a, n, i)
+    print("Max-heap:", *a)
+    for i in range(n - 1, 0, -1):               # move max to the end, restore heap
+        a[0], a[i] = a[i], a[0]
+        heapify(a, i, 0)
+    print("Sorted:", *a)
+
+try:
+    main()
+except (EOFError, ValueError):
+    print("\nInvalid input")
+```
+
+## B4 (Python): Merge Sort
+```python
+# B4: Sort online orders by delivery time using Merge Sort
+
+def merge_sort(a):                              # a = list of (order_id, minutes)
+    if len(a) <= 1: return a
+    mid = len(a) // 2
+    L, R = merge_sort(a[:mid]), merge_sort(a[mid:])
+    out, i, j = [], 0, 0
+    while i < len(L) and j < len(R):            # <= keeps equal times in original order
+        if L[i][1] <= R[j][1]: out.append(L[i]); i += 1
+        else: out.append(R[j]); j += 1
+    return out + L[i:] + R[j:]
+
+def main():
+    n = int(input("Number of orders: "))
+    if n < 1:
+        print("Orders must be at least 1"); return
+    orders = []
+    for _ in range(n):
+        oid, t = map(int, input("Order id and time(min): ").split())
+        orders.append((oid, t))
+    print("Order  Time")
+    for oid, t in merge_sort(orders):
+        print(f"{oid:<6} {t}")
+
+try:
+    main()
+except (EOFError, ValueError):
+    print("\nInvalid input")
+```
+
+## B5 (Python): Fractional Knapsack
+```python
+# B5: Fractional Knapsack (greedy by profit/weight ratio)
+
+def main():
+    n = int(input("Number of parcels: "))
+    if n < 1:
+        print("Parcels must be at least 1"); return
+    items = []
+    for i in range(n):
+        w, p = map(float, input(f"Weight and profit of parcel {i + 1}: ").split())
+        if w <= 0:
+            print("Weight must be positive"); return
+        items.append((w, p))
+    cap = float(input("Truck capacity: "))
+
+    items.sort(key=lambda x: x[1] / x[0], reverse=True)       # best ratio first
+    profit = 0.0
+    for w, p in items:
+        if cap <= 0: break
+        f = 1 if w <= cap else cap / w                         # whole parcel or the part that fits
+        profit += f * p
+        cap -= f * w
+        print(f"Parcel (w={w:.1f}, p={p:.1f}): fraction {f:.2f}")
+    print(f"Maximum profit = {profit:.2f}")
+
+try:
+    main()
+except (EOFError, ValueError):
+    print("\nInvalid input")
+```
+
+## B6 (Python): Naive String Matching
+```python
+# B6: Naive String Matching
+
+def main():
+    text = input("Text: ")
+    pattern = input("Pattern: ")
+    n, m = len(text), len(pattern)
+    print("Found at index: ", end="")
+    for i in range(n - m + 1):
+        j = 0
+        while j < m and text[i + j] == pattern[j]:
+            j += 1
+        if j == m:
+            print(i, end=" ")
+    print()
+
+try:
+    main()
+except EOFError:
+    print("\nInvalid input")
+```
+
+For the C++ ones on Programiz, use the C++ compiler page and paste each program on its own. For the Python ones, use the Python page.
